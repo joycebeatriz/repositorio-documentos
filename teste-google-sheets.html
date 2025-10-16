@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Integração Google Sheets</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .loading { background-color: #d1ecf1; color: #0c5460; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste de Integração com Google Sheets</h1>
+    
+    <div id="status" class="status loading">
+        ⏳ Testando conexão com Google Sheets...
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        // Configurações da planilha
+        const CONFIG = {
+            API_KEY: 'AIzaSyADQAVJ0SnvTI1Syl-0Bzb_2Z_JbsA2yWU',
+            SPREADSHEET_ID: '16sEH74w9t5VN8iyLwIe_xmt4azTXmoIV-R2cfZ2L5Rw',
+            RANGE: 'Lista!A1:AE1000'
+        };
+
+        const statusDiv = document.getElementById('status');
+        const resultsDiv = document.getElementById('results');
+
+        function updateStatus(message, type = 'loading') {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+
+        function showResults(data) {
+            resultsDiv.innerHTML = `
+                <h2>📊 Resultados do Teste</h2>
+                <div class="status success">
+                    ✅ Conexão com Google Sheets estabelecida com sucesso!
+                </div>
+                <h3>📋 Dados Recebidos:</h3>
+                <p><strong>Total de linhas:</strong> ${data.values ? data.values.length : 0}</p>
+                <p><strong>Cabeçalhos:</strong> ${data.values ? data.values[0].join(', ') : 'Nenhum'}</p>
+                <p><strong>Primeira linha de dados:</strong> ${data.values && data.values[1] ? data.values[1].join(', ') : 'Nenhuma'}</p>
+                
+                <h3>🔍 Estrutura Completa:</h3>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+        }
+
+        function showError(error) {
+            resultsDiv.innerHTML = `
+                <h2>❌ Erro no Teste</h2>
+                <div class="status error">
+                    ${error}
+                </div>
+                <h3>🔧 Possíveis Soluções:</h3>
+                <ul>
+                    <li>Verifique se a API Key está correta</li>
+                    <li>Verifique se o ID da planilha está correto</li>
+                    <li>Verifique se a planilha está pública para leitura</li>
+                    <li>Verifique se o range está correto</li>
+                </ul>
+            `;
+        }
+
+        async function testGoogleSheetsConnection() {
+            try {
+                updateStatus('🔄 Fazendo requisição para Google Sheets API...');
+                
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SPREADSHEET_ID}/values/${CONFIG.RANGE}?key=${CONFIG.API_KEY}`;
+                
+                console.log('URL:', url);
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                updateStatus('✅ Teste concluído com sucesso!', 'success');
+                showResults(data);
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                updateStatus('❌ Erro no teste', 'error');
+                showError(error.message);
+            }
+        }
+
+        // Executar teste quando a página carregar
+        window.addEventListener('load', testGoogleSheetsConnection);
+    </script>
+</body>
+</html>

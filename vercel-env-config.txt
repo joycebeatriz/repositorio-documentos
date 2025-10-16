@@ -1,0 +1,18 @@
+# Configurações de Ambiente para Vercel
+# Este arquivo deve ser configurado nas variáveis de ambiente do Vercel
+
+# API Key do Google Sheets (obrigatória)
+VITE_GOOGLE_SHEETS_API_KEY=AIzaSyADQAVJ0SnvTI1Syl-0Bzb_2Z_JbsA2yWU
+
+# ID da planilha do Google Sheets (obrigatório)
+VITE_GOOGLE_SHEETS_SPREADSHEET_ID=16sEH74w9t5VN8iyLwIe_xmt4azTXmoIV-R2cfZ2L5Rw
+
+# Range da planilha (opcional - padrão: Lista!A1:AE1000)
+VITE_GOOGLE_SHEETS_RANGE=Lista!A1:AE1000
+
+# Instruções para configurar no Vercel:
+# 1. Acesse o dashboard do Vercel
+# 2. Vá para Settings > Environment Variables
+# 3. Adicione cada variável acima
+# 4. Certifique-se de que estão marcadas para "Production", "Preview" e "Development"
+# 5. Faça um novo deploy

@@ -16,17 +16,24 @@ import { useGoogleSheetsDocuments, DocumentData } from '@/hooks/useGoogleSheetsD
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
+// Configurar cores padrão do Chart.js para evitar sobrescrita
+ChartJS.defaults.color = '#000000';
+ChartJS.defaults.elements.arc.backgroundColor = undefined; // Permitir cores personalizadas
+ChartJS.defaults.plugins.legend.labels.usePointStyle = true;
+ChartJS.defaults.plugins.legend.labels.pointStyle = 'circle';
+
 // --- Tipagem mínima para os documentos do Google Sheets ---
 type PublicDoc = DocumentData;
 
 const TYPE_META: Record<string, { label: string; displayName: string; color: string }> = {
-  CV:   { label: 'CV',   displayName: 'Cadeia de Valor',                 color: '#6ee7b7' }, // emerald-300
-  MAN:  { label: 'MAN',  displayName: 'Manual',                          color: '#fbbf24' }, // amber-400
-  MOD:  { label: 'MOD',  displayName: 'Modelagem de Processos',          color: '#c4b5fd' }, // violet-300
-  POP:  { label: 'POP',  displayName: 'Procedimento Operacional Padrão', color: '#60a5fa' }, // blue-400
-  IT:   { label: 'IT',   displayName: 'Instrução de Trabalho',           color: '#f87171' }, // red-400
-  VID:  { label: 'VID',  displayName: 'Vídeo',                           color: '#c084fc' }, // purple-400
-  CAT:  { label: 'CAT',  displayName: 'Catálogo de Serviços',            color: '#fb923c' }, // orange-400
+  POP:  { label: 'POP',  displayName: 'Procedimento Operacional Padrão', color: '#ffa500' }, // laranja claro
+  MOD:  { label: 'MOD',  displayName: 'Modelagem de Processos',          color: '#9370db' }, // roxo claro
+  VID:  { label: 'VID',  displayName: 'Vídeo',                           color: '#ff69b4' }, // rosa
+  MAN:  { label: 'MAN',  displayName: 'Manual',                          color: '#ffff00' }, // amarelo
+  CV:   { label: 'CV',   displayName: 'Cadeia de Valor',                 color: '#00bfff' }, // azul claro/ciano
+  IT:   { label: 'IT',   displayName: 'Instrução de Trabalho',           color: '#ffd700' }, // dourado
+  POPS: { label: 'POPS', displayName: 'Procedimentos Operacionais',     color: '#d3d3d3' }, // cinza claro
+  CAT:  { label: 'CAT',  displayName: 'Catálogo de Serviços',            color: '#87ceeb' }, // azul céu
 };
 
 function normalizeTypeSigla(s?: string) {
@@ -441,8 +448,6 @@ const ChartsSection = () => {
   };
 
   /* ---------- Pizza "Distribuição por título" (DINÂMICO) ---------- */
-  const typesChartRef = useRef<any>(null);
-
   // Usar estatísticas do backend (documentos únicos) com fallback
   const typesAgg = useMemo(() => {
     if (documentStats?.statistics?.byType) {
@@ -470,63 +475,8 @@ const ChartsSection = () => {
     });
     arr.sort((a, b) => b.count - a.count);
     
-    // Debug: verificar se as siglas estão corretas
-    console.log('🔍 TypesAgg debug:', arr.map(t => ({ key: t.key, label: t.label, displayName: t.displayName })));
-    
     return arr;
   }, [documentStats, documentsToUse]);
-
-  const typesPieData = useMemo(
-    () => ({
-      labels: typesAgg.map((t) => t.displayName),         // usado nos tooltips
-      datasets: [
-        {
-          data: typesAgg.map((t) => t.count),
-          backgroundColor: typesAgg.map((t) => t.color),
-          borderWidth: 0,
-          hoverOffset: HOVER_OFFSET,
-          spacing: 2,
-        },
-      ],
-    }),
-    [typesAgg]
-  );
-
-  const typesPieOptions = useMemo(
-    () => ({
-      plugins: {
-        legend: { display: false },
-        tooltip: { enabled: false, external: externalPieTooltip },
-      },
-      layout: { padding: CHART_SAFE_PAD },
-      elements: { arc: { borderWidth: 0 } },
-      animation: { duration: 450, easing: 'easeOutQuart' },
-      maintainAspectRatio: false,
-      responsive: true,
-    }),
-    []
-  );
-
-  // Hover da legenda destaca a fatia no gráfico
-  const handleTypesLegendHover = (index: number | null) => {
-    const chart = typesChartRef.current as any;
-    if (!chart) return;
-
-    if (index === null) {
-      chart.setActiveElements([]);
-      chart.tooltip?.setActiveElements([], { x: 0, y: 0 });
-      chart.update();
-      return;
-    }
-
-    const meta = chart.getDatasetMeta(0);
-    const el = meta?.data?.[index];
-    const pos = el ? { x: el.x, y: el.y } : { x: (chart as any).chartArea?.left ?? 0, y: (chart as any).chartArea?.top ?? 0 };
-
-    chart.setActiveElements([{ datasetIndex: 0, index }]);
-    chart.tooltip?.setActiveElements([{ datasetIndex: 0, index }], pos);
-    chart.update();
-  };
 
   useEffect(() => {
     // Hook já carrega os dados automaticamente
@@ -701,7 +651,7 @@ const ChartsSection = () => {
           </div>
         </div>
 
-        {/* 3) Pizza — CONJUNTO (círculo + legenda) CENTRALIZADO */}
+        {/* 3) Pizza — NOVO GRÁFICO COM CORES GARANTIDAS */}
         <div className={CARD_COMMON}>
           <h4 className="text-base font-bold text-gray-900 text-center mb-2">Tipo de documento</h4>
 
@@ -709,7 +659,42 @@ const ChartsSection = () => {
             <div className={`w-fit ${SET_GAP} mx-auto flex items-center justify-center`}>
               {/* Círculo */}
               <div className={CHART_BOX_PIE} role="img" aria-label="Tipo de documento">
-                <Pie ref={typesChartRef} data={typesPieData} options={typesPieOptions as any} />
+                <Pie 
+                  data={{
+                    labels: typesAgg.map((t) => t.key),
+                    datasets: [{
+                      data: typesAgg.map((t) => t.count),
+                      backgroundColor: typesAgg.map((t) => t.color),
+                      borderWidth: 0,
+                      hoverOffset: 8,
+                    }]
+                  }}
+                  options={{
+                    plugins: {
+                      legend: { display: false },
+                      tooltip: {
+                        enabled: true,
+                        callbacks: {
+                          title: (context) => {
+                            const label = context[0]?.label;
+                            const typeMeta = TYPE_META[label || ''];
+                            return typeMeta?.displayName || label;
+                          },
+                          label: (context) => {
+                            const value = context.parsed;
+                            const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${value} documentos (${percentage}%)`;
+                          }
+                        }
+                      }
+                    },
+                    layout: { padding: 20 },
+                    animation: { duration: 450 },
+                    maintainAspectRatio: false,
+                    responsive: true,
+                  }}
+                />
               </div>
 
               {/* Legenda */}
@@ -719,9 +704,6 @@ const ChartsSection = () => {
                     key={t.key} 
                     className="flex items-center gap-2 px-2 py-1 text-left cursor-default"
                     title={`${t.key}: ${t.displayName}`}
-                    onMouseEnter={() => handleTypesLegendHover(i)}
-                    onMouseLeave={() => handleTypesLegendHover(null)}
-                    aria-label={t.displayName}
                   >
                     <span
                       className="shrink-0 w-4 h-4 rounded-full ring-1 ring-black/10"

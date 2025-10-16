@@ -1,11 +1,11 @@
 @echo off
 echo ========================================
-echo   INICIANDO FRONTEND
+echo   INICIANDO FRONTEND (SEM BACKEND)
 echo ========================================
 echo.
-
-echo Verificando se o backend está rodando...
-timeout 2 > nul
+echo Sistema agora funciona apenas com frontend!
+echo Integração direta com Google Sheets.
+echo.
 
 echo Iniciando frontend...
 cd frontend

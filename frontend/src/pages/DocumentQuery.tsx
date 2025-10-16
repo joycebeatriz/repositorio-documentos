@@ -50,7 +50,7 @@ const DocumentQuery = () => {
               
               <h1 id="hero-title" className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 leading-tight">
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                  Documentos Padronizados da UFG
+                  Documentos Padronizados UFG
                 </span>
               </h1>
               

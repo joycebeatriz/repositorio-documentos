@@ -2,61 +2,68 @@
 
 Sistema integrado com Google Sheets para gerenciamento de documentos da Secretaria de Planejamento, Avaliação e Informações Institucionais da UFG.
 
-## 🏗️ Estrutura do Projeto
+## 🏗️ Estrutura do Projeto (Frontend Only)
 
 ```
 repositorio_documentos/
-├── frontend/          # Aplicação React (Frontend)
-│   ├── src/           # Código fonte React
-│   ├── public/        # Arquivos públicos
-│   ├── package.json   # Dependências do frontend
+├── frontend/                    # Aplicação React (Frontend Only)
+│   ├── src/                    # Código fonte React
+│   │   ├── config/            # Configurações do Google Sheets
+│   │   ├── hooks/              # Hooks personalizados
+│   │   ├── components/         # Componentes React
+│   │   └── pages/             # Páginas da aplicação
+│   ├── public/                 # Arquivos públicos
+│   ├── package.json           # Dependências do frontend
 │   └── ...
-├── backend/           # Servidor Node.js (Backend)
-│   ├── src/           # Código fonte do servidor
-│   ├── package.json   # Dependências do backend
-│   └── .env           # Configurações (API Key, etc.)
-└── README.md          # Este arquivo
+├── teste-google-sheets.html   # Arquivo de teste da integração
+├── iniciar-frontend.bat       # Script para iniciar o frontend
+├── diagnosticar-sincronizacao.bat # Script de diagnóstico
+└── README.md                  # Este arquivo
 ```
 
-## 🚀 Como Executar
+## 🚀 Como Executar (Frontend Only)
 
-### **1. Backend (Servidor)**
-```bash
-cd backend
-npm install
-npm run dev
-```
-- Servidor rodará em: http://localhost:3001
-- API disponível em: http://localhost:3001/api
-
-### **2. Frontend (Aplicação)**
+### **Executar Aplicação:**
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 - Aplicação rodará em: http://localhost:5173
+- **Sem necessidade de backend!**
 
-## 🔗 Integração com Google Sheets
+### **Scripts Automatizados:**
+- **Windows:** Execute `iniciar-frontend.bat`
+- **Diagnóstico:** Execute `diagnosticar-sincronizacao.bat`
+
+## 🔗 Integração Direta com Google Sheets
+
+### **Como Funciona:**
+- ✅ **Acesso direto** à API pública do Google Sheets
+- ✅ **Sem backend** - funciona apenas com frontend
+- ✅ **Sincronização automática** a cada 30 segundos
+- ✅ **Cache inteligente** para melhor performance
+- ✅ **Interface idêntica** ao sistema anterior
 
 ### **Planilha Configurada:**
 - **URL:** https://docs.google.com/spreadsheets/d/16sEH74w9t5VN8iyLwIe_xmt4azTXmoIV-R2cfZ2L5Rw/edit?usp=sharing
 - **Aba:** Lista
-- **Sincronização:** Automática a cada 5 minutos
+- **Sincronização:** Automática e manual
 
 ### **Funcionalidades:**
 - ✅ **Sincronização automática** com Google Sheets
 - ✅ **Sincronização manual** com botão "Sincronizar"
 - ✅ **Status em tempo real** (Online/Offline)
-- ✅ **Fallback** para dados locais se API falhar
 - ✅ **Interface visual** para monitoramento
+- ✅ **Busca e filtros** funcionando normalmente
+- ✅ **Estatísticas e gráficos** atualizados
 
 ## 📊 Como Usar
 
 ### **1. Adicionar Documentos:**
 - Abra a planilha no Google Sheets
 - Adicione nova linha na aba "Lista"
-- Aguarde 5 minutos OU clique em "Sincronizar"
+- Aguarde sincronização automática OU clique em "Sincronizar"
 - Documento aparece automaticamente no sistema
 
 ### **2. Editar Documentos:**
@@ -71,34 +78,35 @@ npm run dev
 
 ## 🔧 Configuração
 
+### **Configuração Centralizada:**
+Arquivo `frontend/src/config/googleSheets.ts`:
+```typescript
+export const GOOGLE_SHEETS_CONFIG = {
+  API_KEY: 'AIzaSyADQAVJ0SnvTI1Syl-0Bzb_2Z_JbsA2yWU',
+  SPREADSHEET_ID: '16sEH74w9t5VN8iyLwIe_xmt4azTXmoIV-R2cfZ2L5Rw',
+  RANGE: 'Lista!A1:AE1000'
+};
+```
+
 ### **API Key do Google:**
 - Já configurada: `AIzaSyADQAVJ0SnvTI1Syl-0Bzb_2Z_JbsA2yWU`
 - Planilha já conectada: `16sEH74w9t5VN8iyLwIe_xmt4azTXmoIV-R2cfZ2L5Rw`
 
-### **Variáveis de Ambiente:**
-Arquivo `backend/.env`:
-```env
-GOOGLE_SHEETS_API_KEY=AIzaSyADQAVJ0SnvTI1Syl-0Bzb_2Z_JbsA2yWU
-GOOGLE_SHEETS_SPREADSHEET_ID=16sEH74w9t5VN8iyLwIe_xmt4azTXmoIV-R2cfZ2L5Rw
-GOOGLE_SHEETS_RANGE=Lista!A1:AE1000
-PORT=3001
-FRONTEND_URL=http://localhost:5173
-```
-
 ## 🎯 Teste Rápido
 
-1. **Execute o backend:** `cd backend && npm run dev`
-2. **Execute o frontend:** `cd frontend && npm run dev`
-3. **Acesse:** http://localhost:5173
-4. **Verifique:** SyncStatus mostra "Online"
-5. **Teste:** Adicione documento na planilha e veja aparecer no sistema!
+1. **Execute o frontend:** `cd frontend && npm run dev`
+2. **Acesse:** http://localhost:5173
+3. **Verifique:** SyncStatus mostra "Online"
+4. **Teste:** Adicione documento na planilha e veja aparecer no sistema!
+5. **Arquivo de teste:** Abra `teste-google-sheets.html` no navegador
 
-## 📈 Status Atual
+## 📈 Vantagens da Nova Arquitetura
 
-- ✅ **Backend:** Funcionando (420 documentos sincronizados)
-- ✅ **Frontend:** Reorganizado e pronto
-- ✅ **Integração:** Google Sheets conectada
-- ✅ **Sincronização:** Automática funcionando
+- ✅ **Mais simples:** Sem necessidade de backend
+- ✅ **Mais rápido:** Acesso direto à planilha
+- ✅ **Mais confiável:** Menos pontos de falha
+- ✅ **Fácil deploy:** Pode ser hospedado em qualquer serviço estático
+- ✅ **Menos recursos:** Não precisa de servidor Node.js
 
 ## 🎉 Pronto!
 
@@ -107,5 +115,6 @@ Agora você pode:
 - ✅ Editar documentos diretamente no Google Sheets
 - ✅ Monitorar o status da sincronização
 - ✅ Ter sincronização em tempo real
+- ✅ **Usar apenas o frontend - sem backend!**
 
-**Sua integração com Google Sheets está funcionando! 🚀**
+**Sua integração com Google Sheets está funcionando de forma mais simples! 🚀**
